@@ -51,7 +51,9 @@ export default function ProductForm() {
             quantity: p.quantity.toString(),
             category: p.category,
           });
-          if (p.image_url) {
+          if (p.image_base64) {
+            setImagePreview(p.image_base64);
+          } else if (p.image_url) {
             setImagePreview(`${API_URL}${p.image_url}`);
           }
         } catch (error) {

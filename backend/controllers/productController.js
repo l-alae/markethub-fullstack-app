@@ -122,7 +122,15 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const { name, description, price, quantity, category } = req.body;
-    const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+    let image_url = null;
+    let image_base64 = null;
+
+    if (req.file) {
+      const imageBuffer = fs.readFileSync(req.file.path);
+      image_base64 = `data:${req.file.mimetype};base64,${imageBuffer.toString('base64')}`;
+      // Clean up uploaded file
+      fs.unlinkSync(req.file.path);
+    }
 
     const product = await Product.create({
       name,
@@ -131,6 +139,7 @@ exports.create = async (req, res) => {
       quantity: parseInt(quantity),
       category,
       image_url,
+      image_base64,
       user_id: req.user._id,
     });
 
@@ -160,13 +169,14 @@ exports.update = async (req, res) => {
     }
 
     let image_url = existing.image_url;
+    let image_base64 = existing.image_base64;
+    
     if (req.file) {
-      // Delete old image if exists
-      if (image_url) {
-        const oldPath = path.join(__dirname, '..', image_url);
-        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-      }
-      image_url = `/uploads/${req.file.filename}`;
+      const imageBuffer = fs.readFileSync(req.file.path);
+      image_base64 = `data:${req.file.mimetype};base64,${imageBuffer.toString('base64')}`;
+      image_url = null;
+      // Clean up uploaded file
+      fs.unlinkSync(req.file.path);
     }
 
     const product = await Product.findByIdAndUpdate(
@@ -178,6 +188,7 @@ exports.update = async (req, res) => {
         quantity: parseInt(quantity),
         category,
         image_url,
+        image_base64,
       },
       { new: true, runValidators: true }
     );
@@ -204,12 +215,6 @@ exports.remove = async (req, res) => {
 
     if (existing.user_id.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Not authorized to delete this product.' });
-    }
-
-    // Delete image file if exists
-    if (existing.image_url) {
-      const imagePath = path.join(__dirname, '..', existing.image_url);
-      if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
     }
 
     await Product.findByIdAndDelete(id);

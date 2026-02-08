@@ -4,9 +4,7 @@ import { FiPackage } from 'react-icons/fi';
 const API_URL = import.meta.env.VITE_API_URL || '';
 
 export default function ProductCard({ product }) {
-  const imageUrl = product.image_url
-    ? `${API_URL}${product.image_url}`
-    : null;
+  const imageUrl = product.image_base64 || (product.image_url ? `${API_URL}${product.image_url}` : null);
 
   return (
     <Link to={`/products/${product.id}`} className="card group">

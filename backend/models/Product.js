@@ -34,6 +34,10 @@ const productSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    image_base64: {
+      type: String,
+      default: null,
+    },
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

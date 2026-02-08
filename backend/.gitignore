@@ -1,3 +1,3 @@
 node_modules/
 .env
-uploads/
+# uploads/ - commented out to deploy seeded images

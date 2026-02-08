@@ -50,7 +50,7 @@ export default function ProductDetail() {
   if (!product) return null;
 
   const canEdit = user && (user.id === product.user_id || isAdmin);
-  const imageUrl = product.image_url ? `${API_URL}${product.image_url}` : null;
+  const imageUrl = product.image_base64 || (product.image_url ? `${API_URL}${product.image_url}` : null);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
