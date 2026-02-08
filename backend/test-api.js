@@ -3,7 +3,7 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
-const BASE = 'http://localhost:5000/api';
+const BASE = 'https://markethub-fullstack-app.onrender.com/api';
 let adminToken = '';
 let userToken = '';
 let createdProductId = '';
@@ -13,6 +13,7 @@ let newUserId = '';
 function request(method, urlPath, body = null, token = null) {
   return new Promise((resolve, reject) => {
     const url = new URL(BASE + urlPath);
+    const isHttps = url.protocol === 'https:';
     const options = {
       hostname: url.hostname,
       port: url.port,
@@ -22,7 +23,8 @@ function request(method, urlPath, body = null, token = null) {
     };
     if (token) options.headers['Authorization'] = `Bearer ${token}`;
 
-    const req = http.request(options, (res) => {
+    const client = isHttps ? https : http;
+    const req = client.request(options, (res) => {
       let data = '';
       res.on('data', (chunk) => (data += chunk));
       res.on('end', () => {
